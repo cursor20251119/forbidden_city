@@ -2,8 +2,8 @@ const fs = require('fs');
 const crypto = require('crypto');
 
 // 配置项
-const BASE_URL = 'https://nfc.yourdomain.com/nfc'; // 替换为你的实际域名
-const COUNT = 10000;
+const BASE_URL = 'https://forbidden-city.vercel.app/nfc'; // 替换为你的实际域名
+const COUNT = 11000;
 const OUTPUT_FILE = 'nfc_urls.csv';
 
 function generateUUID() {

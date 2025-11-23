@@ -202,89 +202,14 @@ async function handleWeChat(res, braceletId) {
     }
 }
 
-// 默认/通用渠道处理 (非微信环境)
-function handleDefault(res, braceletId) {
-    const html = `
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>瑞兽守护</title>
-    <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
-        .bg {
-            /* 深色背景，不使用图片 */
-            background: linear-gradient(to bottom, #2c3e50, #000000);
-            height: 100%;
-            width: 100%;
-            position: absolute;
-            z-index: -1;
-        }
-        .overlay {
-            height: 100%;
-            width: 100%;
-            position: absolute;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            width: 80%;
-            max-width: 320px;
-            padding: 40px 20px;
-            border-radius: 20px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-        }
-        .icon { font-size: 48px; margin-bottom: 20px; }
-        .title { font-size: 20px; font-weight: bold; margin-bottom: 15px; letter-spacing: 1px; }
-        .text { font-size: 14px; line-height: 1.6; margin-bottom: 20px; opacity: 0.8; }
-        .tag { 
-            display: inline-block; 
-            background: rgba(255,255,255,0.1); 
-            color: rgba(255,255,255,0.6); 
-            font-size: 12px; 
-            padding: 4px 10px; 
-            border-radius: 4px; 
-        }
-    </style>
-</head>
-<body>
-    <div class="bg"></div>
-    <div class="overlay">
-        <div class="card">
-            <div class="icon">📷</div>
-            <div class="title">请使用微信扫一扫</div>
-            <div class="text">为了完整体验瑞兽守护功能<br>请使用微信扫描 NFC 标签</div>
-            <div class="tag">ID: ${braceletId}</div>
-        </div>
-    </div>
-</body>
-</html>
-    `;
-    res.send(html);
-}
-
 // --- 主路由 ---
 
 app.get('/nfc/:id', async (req, res) => {
     const braceletId = req.params.id;
-    const userAgent = req.headers['user-agent'] || '';
+    console.log(`[Request] ID: ${braceletId}, UA: ${req.headers['user-agent']}`);
     
-    // 简单的渠道判断策略
-    if (userAgent.includes('MicroMessenger')) {
-        // 微信环境
-        await handleWeChat(res, braceletId);
-    } else {
-        // 其他环境 (浏览器、支付宝等)
-        // 未来可以在这里添加 else if (userAgent.includes('AlipayClient')) { ... }
-        handleDefault(res, braceletId);
-    }
+    // 统一使用 URL Scheme 跳转，支持微信内和外部浏览器（如 Chrome/Safari）
+    await handleWeChat(res, braceletId);
 });
 
 app.get('/', (req, res) => {
