@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>福气加马</title>
+    <style>
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%;
+            height: 100%; 
+            overflow: hidden; 
+            /* 使用楷体或衬线字体营造古风感 */
+            font-family: "STKaiti", "KaiTi", "PingFang SC", "Microsoft YaHei", serif; 
+            background-color: #F4F0E6; /* 兜底背景色 */
+            color: #8E6E43;
+        }
+        .bg {
+            position: fixed; /* 修复底部白边，使用 fixed 覆盖全屏 */
+            top: 0; left: 0; right: 0; bottom: 0;
+            /* 纸张纹理背景色 + 柔和渐变 */
+            background: linear-gradient(180deg, #F4F0E6 0%, #E6DBC0 100%);
+            /* 叠加纹理 */
+            background-image: 
+                radial-gradient(#D9CBAF 1px, transparent 1px),
+                linear-gradient(180deg, #F4F0E6 0%, #E6DBC0 100%);
+            background-size: 20px 20px, 100% 100%;
+            z-index: -3;
+        }
+        
+        /* 底部宫殿氛围装饰 */
+        .palace-deco {
+            position: fixed; /* 修复底部白边 */
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 35vh;
+            /* 底部淡淡的朱红渐变，呼应故宫红墙，增加层次 */
+            background: linear-gradient(to top, rgba(168, 50, 50, 0.12) 0%, rgba(168, 50, 50, 0.05) 60%, transparent 100%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .overlay {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 14vh; /* 内容整体上移 */
+            box-sizing: border-box;
+            z-index: 1;
+        }
+
+        .main-title {
+            font-size: 52px;
+            font-weight: bold;
+            line-height: 1.25;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #B58848; /* 金色标题 */
+            /* 模拟书法字体的笔触感 */
+            font-family: "STXingkai", "Xingkai SC", "STKaiti", "KaiTi", serif;
+            text-shadow: 0 4px 8px rgba(181, 136, 72, 0.2);
+            animation: fadeInUp 1.2s ease-out;
+        }
+
+        .subtitle-box {
+            position: relative;
+            border: 1px solid #B58848;
+            padding: 10px 32px;
+            border-radius: 50px;
+            font-size: 17px;
+            color: #8E6E43;
+            margin-bottom: 80px;
+            background: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 15px rgba(181, 136, 72, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInUp 1.2s ease-out 0.3s backwards;
+        }
+        /* 装饰性符号 */
+        .subtitle-box::before, .subtitle-box::after {
+            content: '❖';
+            color: #B58848;
+            margin: 0 10px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        /* 双线边框效果 */
+        .subtitle-box .inner-border {
+            position: absolute;
+            top: 3px; left: 3px; right: 3px; bottom: 3px;
+            border: 1px solid rgba(181, 136, 72, 0.3);
+            border-radius: 46px;
+            pointer-events: none;
+        }
+
+        .loading-area {
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* 移除延迟，确保文字立即显示 */
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .divider-text {
+            font-size: 15px;
+            color: #A08050;
+            margin-bottom: 30px;
+            letter-spacing: 3px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        /* 装饰线 */
+        .divider-line {
+            width: 40px;
+            height: 2px;
+            background: #D4C4A8;
+            margin: 10px 0;
+            border-radius: 2px;
+        }
+
+        .btn { 
+            display: inline-block; 
+            width: 220px;
+            padding: 15px 0; 
+            /* 按钮金色渐变背景 */
+            background: linear-gradient(to bottom, #FDF5E6, #F0E0C0);
+            border: 1px solid #D4B886;
+            color: #8B5A2B; 
+            text-decoration: none; 
+            border-radius: 50px; 
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(139, 90, 43, 0.1);
+            transition: all 0.3s;
+            letter-spacing: 4px;
+            text-align: center;
+            font-family: "STKaiti", "KaiTi", serif;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            /* 移除呼吸动画，保持静谧 */
+        }
+        .btn:active { 
+            transform: scale(0.98);
+            box-shadow: 0 2px 6px rgba(139, 90, 43, 0.15);
+            background: linear-gradient(to bottom, #F0E0C0, #E6CBA6);
+        }
+        
+        .loading-dots {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .dot {
+            width: 8px; height: 8px; background: #B58848; border-radius: 50%; margin: 0 6px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .debug-info { 
+            position: fixed; 
+            bottom: 10px; 
+            width: 100%; 
+            text-align: center; 
+            font-size: 10px; 
+            color: rgba(142, 110, 67, 0.3); 
+            z-index: 10;
+        }
+        
+        /* 调试控制台样式 */
+        .debug-console {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%; /* 占据上半屏 */
+            background: rgba(0, 0, 0, 0.85);
+            color: #00ff00;
+            font-family: "Consolas", "Monaco", monospace;
+            font-size: 12px;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            z-index: 9999;
+            display: none; /* 默认隐藏 */
+            text-align: left;
+            border-bottom: 2px solid #00ff00;
+        }
+        .debug-console.visible { display: block; }
+        .log-line { margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 2px; word-break: break-all; }
+        .log-error { color: #ff6b6b; font-weight: bold; }
+        .log-warn { color: #feca57; }
+        
+        /* 调试开关按钮 */
+        .debug-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 0, 0, 0.2);
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 36px;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 10000;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            transition: all 0.3s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            display: none; /* 默认隐藏，只有 debug=1 时显示 */
+        }
+        .debug-toggle:active { background: rgba(0, 0, 0, 0.5); transform: scale(0.95); }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="bg"></div>
+    <div class="palace-deco"></div>
+    
+    <div class="overlay">
+        <!-- 主标题 -->
+        <div class="main-title">
+            百年故宫<br>为你守护
+        </div>
+        
+        <!-- 副标题/Slogan -->
+        <div class="subtitle-box">
+            <div class="inner-border"></div>
+            解锁专属瑞兽，集故宫祥瑞
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading-area">
+            <div class="divider-text">
+                正在开启<br>寻找你的专属守护瑞兽
+                <div class="divider-line"></div>
+            </div>
+            <div class="loading-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+
+        <!-- Manual Jump State -->
+        <div id="manual" class="loading-area hidden">
+            <div class="divider-text">
+                即刻开启<br>寻找你的专属守护瑞兽
+                <div class="divider-line"></div>
+            </div>
+            <a id="manual-link" href="#" class="btn">即刻开启</a>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="loading-area hidden">
+            <div class="divider-text" id="error-msg" style="color: #D45848;">无法获取跳转链接</div>
+            <button class="btn" onclick="retry()">重试</button>
+        </div>
+    </div>
+    <div class="debug-info" id="debug-id"></div>
+    <div id="debug-toggle" class="debug-toggle">🐞</div>
+    <div id="debug-console" class="debug-console">
+        <div style="color: #fff; border-bottom: 1px solid #fff; padding-bottom: 5px; margin-bottom: 5px;">🔧 调试模式已开启</div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 🔧 配置区域 (Configuration) - 上线前请检查
+        // ==========================================
+        const CONFIG = {
+            // API 接口域名，上线时如果域名变更，请修改此处
+            API_HOST: 'https://api.bnuzleon.cn',
+            
+            // 小程序页面路径
+            WX_PATH: 'pages/index/index',
+            
+            // 小程序环境版本: release(正式版), trial(体验版), develop(开发版)
+            // 注意：如果小程序尚未发布正式版，请使用 'trial' 或 'develop'，否则会报错 "Generate Url Scheme Error"
+            ENV_VERSION: 'trial'
+        };
+        // ==========================================
+
+        // 获取 URL 参数
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // 调试日志功能
+        const consoleEl = document.getElementById('debug-console');
+        const toggleEl = document.getElementById('debug-toggle');
+
+        // 如果 URL 带 debug=1，显示调试开关
+        if (getQueryParam('debug') === '1') {
+            if (toggleEl) toggleEl.style.display = 'block';
+        }
+
+        // 点击开关切换显示/隐藏
+        if (toggleEl) {
+            toggleEl.addEventListener('click', () => {
+                consoleEl.classList.toggle('visible');
+            });
+        }
+
+        function log(msg, type = 'info') {
+            // 同时也输出到浏览器控制台
+            if (type === 'error') console.error(msg);
+            else console.log(msg);
+
+            // 始终记录日志到 DOM，以便展开时查看
+            if (consoleEl) {
+                const line = document.createElement('div');
+                line.className = `log-line log-${type}`;
+                const time = new Date().toLocaleTimeString();
+                // 如果 msg 是对象，尝试 stringify
+                let text = msg;
+                if (typeof msg === 'object') {
+                    try { text = JSON.stringify(msg); } catch(e) { text = '[Object]'; }
+                }
+                line.innerText = `[${time}] ${text}`;
+                consoleEl.appendChild(line);
+                // 自动滚动到底部
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+            }
+        }
+
+        // 显示状态
+        function showState(stateId) {
+            log(`State change: -> ${stateId}`);
+            ['loading', 'error', 'manual'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(stateId).classList.remove('hidden');
+        }
+
+        // 显示错误
+        function showError(msg, detail = null) {
+            showState('error');
+            // 统一对外展示文案，隐藏真实错误信息
+            document.getElementById('error-msg').innerText = '服务连接不稳定\n请稍后重试';
+            
+            // 内部日志记录真实错误，方便 Debug
+            log(`[Error Hidden] ${msg}`, 'error');
+            if (detail) log(detail, 'error');
+        }
+
+        // 主逻辑
+        async function init() {
+            log('Init started...');
+            showState('loading');
+            
+            const id = getQueryParam('id');
+            log(`Params ID: ${id}`);
+            
+            // 显示调试ID
+            const debugEl = document.getElementById('debug-id');
+            if (debugEl) debugEl.innerText = 'ID: ' + (id || 'Unknown');
+
+            if (!id) {
+                showError('链接参数缺失 (ID)');
+                return;
+            }
+
+            // 构建 API 地址
+            // 注意：query 参数中的 id=xxx 不需要再次 encodeURIComponent，因为它是作为 query 参数的值的一部分
+            // 完整结构: path=pages/index/index & query=id=... & env_version=release
+            const apiUrl = `${CONFIG.API_HOST}/wx/url_scheme?path=${CONFIG.WX_PATH}&query=id=${id}&env_version=${CONFIG.ENV_VERSION}`;
+            log(`Request URL: ${apiUrl}`);
+
+            try {
+                const response = await fetch(apiUrl);
+                log(`Response Status: ${response.status}`);
+                
+                // 网络层面的错误处理
+                if (!response.ok) {
+                    throw new Error(`网络请求错误: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                log('Response Data:');
+                log(data);
+
+                // 业务层面的判断
+                if (data.url) {
+                    // 成功获取 Scheme
+                    const schemeUrl = data.url;
+                    log(`Scheme URL: ${schemeUrl}`);
+                    
+                    // 尝试自动跳转
+                    log('Attempting auto redirect...');
+                    window.location.href = schemeUrl;
+
+                    // 设置手动跳转链接，以防自动跳转失败（例如浏览器拦截）
+                    const manualLink = document.getElementById('manual-link');
+                    manualLink.href = schemeUrl;
+                    
+                    // 延迟显示手动跳转按钮，如果自动跳转很快生效，用户可能看不到这个
+                    setTimeout(() => {
+                        log('Showing manual button (timeout)');
+                        showState('manual');
+                    }, 1500);
+
+                } else {
+                    // 接口返回错误信息
+                    const errorMsg = data.msg || '生成跳转链接失败';
+                    log(`API Error: ${JSON.stringify(data)}`, 'error');
+                    showError(errorMsg, data);
+                }
+
+            } catch (error) {
+                log(`Fetch Exception: ${error.message}`, 'error');
+                console.error('Fetch Error:', error);
+                showError('网络连接不稳定\n请检查网络后重试', error.message);
+            }
+        }
+
+        function retry() {
+            init();
+        }
+
+        // 页面加载完成后执行
+        window.onload = init;
+    </script>
+</body>
+</html>
