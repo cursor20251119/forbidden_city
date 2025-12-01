@@ -32,8 +32,8 @@ function generate() {
     
     for (let i = 1; i <= COUNT; i++) {
         const uuid = generateUUID();
-        // 新的 URL 格式: https://bnuzleon.cn/g/?id={UUID}&src=nfc
-        const url = `${BASE_URL}?id=${uuid}&src=nfc`;
+        // 新的 URL 格式: https://bnuzleon.cn/g/?uuid={UUID}&channel=bracelet
+        const url = `${BASE_URL}?uuid=${uuid}&channel=bracelet`;
         // 格式: 序号, 完整URL, 原始UUID
         content += `${i},${url},${uuid}\n`;
     }

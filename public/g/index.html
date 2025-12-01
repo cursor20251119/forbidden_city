@@ -378,22 +378,26 @@
             log('Init started...');
             showState('loading');
             
-            const id = getQueryParam('id');
-            log(`Params ID: ${id}`);
+            const uuid = getQueryParam('uuid');
+            const channel = getQueryParam('channel') || 'bracelet';
+            log(`Params UUID: ${uuid}, Channel: ${channel}`);
             
             // 显示调试ID
             const debugEl = document.getElementById('debug-id');
-            if (debugEl) debugEl.innerText = 'ID: ' + (id || 'Unknown');
+            if (debugEl) debugEl.innerText = 'UUID: ' + (uuid || 'Unknown');
 
-            if (!id) {
-                showError('链接参数缺失 (ID)');
+            if (!uuid) {
+                showError('链接参数缺失 (UUID)');
                 return;
             }
 
             // 构建 API 地址
             // 注意：query 参数中的 id=xxx 不需要再次 encodeURIComponent，因为它是作为 query 参数的值的一部分
             // 完整结构: path=pages/index/index & query=id=... & env_version=release
-            const apiUrl = `${CONFIG.API_HOST}/wx/url_scheme?path=${CONFIG.WX_PATH}&query=id=${id}&env_version=${CONFIG.ENV_VERSION}`;
+            // 改动：query=channel=bracelet&uuid=...
+            // 注意：由于包含 & 符号，必须进行 encodeURIComponent，否则 uuid 会被识别为 API 的参数而不是 query 的一部分
+            const queryVal = `channel=${channel}&uuid=${uuid}`;
+            const apiUrl = `${CONFIG.API_HOST}/wx/url_scheme?path=${CONFIG.WX_PATH}&query=${encodeURIComponent(queryVal)}&env_version=${CONFIG.ENV_VERSION}`;
             log(`Request URL: ${apiUrl}`);
 
             try {
