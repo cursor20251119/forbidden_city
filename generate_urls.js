@@ -2,7 +2,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 
 // 配置项
-const BASE_URL = 'https://bnuzleon.cn/g/'; // 中转页地址
+const BASE_URL = 'https://bnuzleon.cn/g/index.html'; // 中转页地址
 const COUNT = 11000;
 
 function generateUUID() {
