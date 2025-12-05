@@ -2,7 +2,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 
 // 配置项
-const BASE_URL = 'https://bnuzleon.cn/g/index.html'; // 中转页地址
+const BASE_URL = 'https://thepalacemuseumculture.cn/g/index.html'; // 中转页地址
 const COUNT = 11000;
 
 function generateUUID() {
@@ -32,7 +32,7 @@ function generate() {
     
     for (let i = 1; i <= COUNT; i++) {
         const uuid = generateUUID();
-        // 新的 URL 格式: https://bnuzleon.cn/g/?uuid={UUID}&channel=bracelet
+        // 新的 URL 格式: https://thepalacemuseumculture.cn/g/?uuid={UUID}&channel=bracelet
         const url = `${BASE_URL}?uuid=${uuid}&channel=bracelet`;
         // 格式: 序号, 完整URL, 原始UUID
         content += `${i},${url},${uuid}\n`;
